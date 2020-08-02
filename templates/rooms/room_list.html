@@ -1,0 +1,65 @@
+<!-- extends를 사용할 때는 모든 template가 같은 폴더에 있다고 생각하고 사용한다.-->
+{% extends "base.html" %} <!--이 부모 템플릿을 사용할 거야 -->
+
+{% block page_name %}
+Home
+{% endblock page_name %}
+
+<!-- 그리고 content 라는 block 자리에 이것들을 넣을 거야-->
+{% block content %} 
+
+    {% for room in rooms %}
+        <h1>{{ room.name }}</h1>
+    {% endfor %}
+    
+    <h5>
+    {% if page_obj.has_previous %}
+        <a href="?page={{page_obj.previous_page_number}}">Previous</a>
+    {% endif %}
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages}}
+    {% if page_obj.has_next %}
+        <a href="?page={{page_obj.next_page_number}}">Next</a>
+    {% endif %}
+    </h5>
+
+    <!--
+        get_page 말고 page를 사용해서 예외처리한 코드
+        {% for room in page.object_list %}
+            <h1>{{ room.name }}</h1>
+        {% endfor %}
+        
+        <h5>
+        {% if page.has_previous %}
+            <a href="?page={{page.previous_page_number}}">Previous</a>
+        {% endif %}
+        Page {{ page.number }} of {{ page.paginator.num_pages}}
+        {% if page.has_next %}
+            <a href="?page={{page.next_page_number}}">Next</a>
+        {% endif %}
+        </h5>
+    -->
+    
+
+    <!-- Pagination manually -->
+        <!--
+        {% for room in rooms %}
+            <h1>{{ room.name }}</h1>
+        {% endfor %}
+        
+        <h5>
+        {% if page is not 1 %}<a href="?page={{page|add:-1}}">Previous</a>{% endif %}
+        Page {{ page }} of {{page_count}}
+        {% if not page == page_count %}<a href="?page={{page|add:1}}">Next</a>{% endif %}
+        </h5>
+        -->
+
+        <!-- Page Link 만들기-->
+        <!--
+        {% for page in page_range %}
+            <a href="?page={{page}}">{{page}}</a>
+        {% endfor %}
+    -->
+    
+
+
+{% endblock content %}

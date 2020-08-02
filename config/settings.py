@@ -23,6 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = "wu0@@^@6z7ji^m7g^ku*ozfy(-4b_(8*7e49%#ts!v_(%7g!xk"
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# 이 부분은 True로 하기 때문에 노란 페이지가 뜨는 것
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -41,6 +42,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     "django_countries",
+    "django_seed",
 ]
 
 PROJECT_APPS = [
@@ -71,7 +73,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -132,3 +134,16 @@ STATIC_URL = "/static/"
 
 
 AUTH_USER_MODEL = "users.User"
+
+MEDIA_ROOT = os.path.join(
+    BASE_DIR, "uploads"
+)  # media file이 저장되는 경로를 설정해준다. 절대 경로로 추가해줘야 한다.
+
+# 위처럼 file, image가 업로드 되었을 때 저장되는 경로는 설정해주었지만,
+# 실질적으로 우리는 DB의 table로 관리를 하게 된다.
+# 그렇기 때문에, 그 파일에 접근하는 url은 여전히 db의 경로를 따른다.
+# http://127.0.0.1:8000/admin/rooms/photo/1/change/room-photos/KakaoTalk_Photo_2019-11-05-12-30-22.jpeg
+# 우리는 이런 요청을 받을 때, Media file이 있는 url을 던져주도록 설정해야 한다.
+
+MEDIA_URL = "/media/"  # 앞에 /를 추가하면 root경로에 추가하는 것으로 바뀐다.
+# media/라고 치면 현재 경로에서 추가된 경로로 정의된다.

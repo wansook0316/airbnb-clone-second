@@ -45,7 +45,7 @@ class User(AbstractUser):
 
     # null = DB level에서 NULL로 저장되는 것을 허용하겠니?
     # blank = 입력 단(form, application level)에서 ""을 허용하겠니?
-    avatar = models.ImageField(blank=True)
+    avatar = models.ImageField(upload_to="avatars", blank=True)
     gender = models.CharField(choices=GENDER_CHOICES, max_length=10, blank=True)
     bio = models.TextField(blank=True)
     birthdate = models.DateField(

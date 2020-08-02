@@ -81,11 +81,13 @@ class Photo(core_models.TimeStampedModel):
     """ Photo Model Definition """
 
     caption = models.CharField(max_length=80)
-    file = models.ImageField()
+    file = models.ImageField(
+        upload_to="room-photos"
+    )  # upload folder에 어떤 폴더에 넣을 것인지 설정해준다.
     # 원래 Room이라고 써주는데, 이럴 경우 상하방향으로 코드를 읽기 때문에 compile시
     # Room이 무엇인지 알 수 없다.
     # 이런 경우 string으로 처리하면 알아차린다! Installed app에서 알아서 가져온다!
-    room = models.ForeignKey("Room", on_delete=models.CASCADE)
+    room = models.ForeignKey("Room", related_name="photos", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.caption
@@ -113,20 +115,38 @@ class Room(core_models.TimeStampedModel):
     # 또한 n:1관계에서 1인 FK가 지워지면 관련된 모든 n개가 지워져야 한다. -> CASCADE
     # host = models.ForeignKey(user_models.User, on_delete=models.CASCADE)
     # 아래와 같이 써주면, import할 필요도 없다. users에 있는 모델 User를 받아 먹는다.
-    host = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    host = models.ForeignKey(
+        "users.User", related_name="rooms", on_delete=models.CASCADE
+    )  # host가 방을 찾을 때, 어떤 이름으로 접근하게 할까요?
 
     # 이번에는 room이 삭제된다해도 RoomType은 지워져서는 안된다.
     # 또한, 한 방은 하나의 room type을 선택하게 만들고 싶기 때문에 FK를 넣어주었다.
-    room_type = models.ForeignKey("RoomType", on_delete=models.SET_NULL, null=True)
+    room_type = models.ForeignKey(
+        "RoomType", related_name="rooms", on_delete=models.SET_NULL, null=True
+    )
 
     # many to many는 여러개를 가질 수 있으므로 변수명도 복수로 잡아준다.
     # 또한 model은 단수, 대문자를 사용하여 나타내고 변수는 소문자로 최대한 나타낸다. 띄어쓰기를 _로 잡아준다.
-    amenities = models.ManyToManyField("Amenity", blank=True)
-    facilities = models.ManyToManyField("Facility", blank=True)
-    house_rules = models.ManyToManyField("HouseRule", blank=True)
+    amenities = models.ManyToManyField("Amenity", related_name="rooms", blank=True)
+    facilities = models.ManyToManyField("Facility", related_name="rooms", blank=True)
+    house_rules = models.ManyToManyField("HouseRule", related_name="rooms", blank=True)
 
     # python은 객체에 대한 이름을 설정하는 함수를 모두 가지고 있다.
     # 해당 함수는 __str__이다. 이 Room 객체가 만들어진 후에 기본 이름이 Room object로 되어 있는데,
     # 이것을 custom화 하자.
     def __str__(self):
         return self.name
+
+    # model의 save 함수를 overriding 해서 사용한다.
+    def save(self, *args, **kwargs):
+        self.city = str.capitalize(self.city)
+        super().save(*args, **kwargs)
+
+    def total_rating(self):
+        all_reviews = self.reviews.all()
+        all_ratings = 0
+        if len(all_reviews) > 0:
+            for review in all_reviews:
+                all_ratings += review.rating_avarage()
+            return round(all_ratings / len(all_reviews))
+        return 0

@@ -29,11 +29,21 @@ class CustomUserAdmin(UserAdmin):
 
     fieldsets = UserAdmin.fieldsets + customFieldSets
 
+    list_display = (
+        "username",
+        "first_name",
+        "last_name",
+        "email",
+        "is_active",
+        "language",
+        "currency",
+        "superhost",
+        "is_staff",
+        "is_superuser",
+    )
 
-"birthdate",
-"language",
-"currency",
-"superhost"
+    list_filter = UserAdmin.list_filter + ("superhost",)
+
 
 """ 기본 ModelAdmin을 상속받아 기능을 살펴본 코드
     @admin.register(models.User)
