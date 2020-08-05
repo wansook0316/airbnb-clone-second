@@ -5,6 +5,7 @@
 # 4. my file
 
 from django.db import models
+from django.urls import reverse
 from django_countries.fields import CountryField
 from core import models as core_models
 
@@ -141,6 +142,11 @@ class Room(core_models.TimeStampedModel):
     def save(self, *args, **kwargs):
         self.city = str.capitalize(self.city)
         super().save(*args, **kwargs)
+
+    # 아래 것은, 특정 모델의 요소를 웹상에서 보고 싶을 때 override하는 method이다.
+    # 기본적으로 이걸 해두면, admin.py에서 이걸 받아먹어서 admin page에서 표현된다.
+    def get_absolute_url(self):
+        return reverse("rooms:detail", kwargs={"pk": self.pk})
 
     def total_rating(self):
         all_reviews = self.reviews.all()

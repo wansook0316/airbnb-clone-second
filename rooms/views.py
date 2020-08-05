@@ -1,5 +1,8 @@
 from django.utils import timezone
-from django.views.generic import ListView
+from django.http import Http404
+from django.urls import reverse
+from django.views.generic import ListView, DetailView
+from django.shortcuts import render, redirect
 from . import models
 
 
@@ -15,6 +18,23 @@ class HomeView(ListView):
     page_kwarg = "page"  # page의 keyword argument를 바꿀 수 있다.
     context_object_name = "rooms"  # 이게 없으면 object_list로 남는다.
 
+
+class RoomDetail(DetailView):
+
+    """ RoomDetail Definition """
+
+    model = models.Room
+
+
+"""room_detail function based view
+    def room_detail(request, pk):
+        try:
+            room = models.Room.objects.get(pk=pk)
+            return render(request, "rooms/room_detail.html", context={"room": room})
+        except models.Room.DoesNotExist:
+            raise Http404()   # 이건 에러창을 뜨게 하는 것 자동으로 templates 폴더에서 404.html을 찾아서 보여준다.
+            # return redirect(reverse("core:home"))   # 이건 사용자를 대상으로 한 것
+"""
 
 """
     # paginator not using class based view

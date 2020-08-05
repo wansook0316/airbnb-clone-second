@@ -9,7 +9,11 @@ Home
 {% block content %} 
 
     {% for room in rooms %}
-        <h1>{{ room.name }}</h1>
+        <h4>
+            <a href="{% url "rooms:detail" room.pk %}">
+                {{ room.name }}
+            </a>
+        </h4>
     {% endfor %}
     
     <h5>
