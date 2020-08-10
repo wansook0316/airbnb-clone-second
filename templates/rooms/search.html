@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+    Search
+{% endblock page_title %}
+
+{% block search-bar %}
+
+{% endblock search-bar %}
+
+{% block content %}
+
+    <h2>Search!</h2>
+
+    <form method="get" action="{% url "rooms:search" %}">
+        {{form.as_p}}
+     
+    
+        <div>
+            <button>Search</button> <!--버튼이 1개 밖에 없을 경우 submit으로 친다.-->
+        </div>
+    </form>
+
+
+    <h3>Results</h3>
+
+    {% for room in rooms %}
+        <h3>{{room.name}}</h3>
+    {% endfor %}
+
+    
+
+{% endblock content %}
