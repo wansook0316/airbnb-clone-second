@@ -4,6 +4,14 @@
 
 
 <ul>
-    <a href="{% url "users:login" %}">Login</a>
+    
+    {% if user.is_authenticated %}
+        <li><a href="{% url "users:logout" %}">Logout</a></li>
+    {% else %}
+        <li><a href="{% url "users:login" %}">Login</a></li>
+        <li><a href="{% url "users:signup" %}">Sign Up</a></li>
+    {% endif %}
+        
+    
 </ul>
 
