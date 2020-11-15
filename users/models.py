@@ -1,5 +1,10 @@
+import uuid
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.mail import send_mail
+from django.utils.html import strip_tags
+from django.template.loader import render_to_string
 
 # 많은 삽질 후에, 완성된 모델을 적용할 때에 해야할 일
 # 1. sqllite 삭제 - 다 만든 새모델을 한번에 적용하는 것이 좋다.
@@ -43,6 +48,16 @@ class User(AbstractUser):
         (CURRENCY_KRW, "KRW"),
     )
 
+    LOGIN_EMAIL = "email"
+    LOGIN_GITHUB = "github"
+    LOGIN_KAKAO = "kakao"
+
+    LOGIN_CHOICES = (
+        (LOGIN_EMAIL, "Email"),
+        (LOGIN_GITHUB, "Github"),
+        (LOGIN_KAKAO, "Kakao"),
+    )
+
     # null = DB level에서 NULL로 저장되는 것을 허용하겠니?
     # blank = 입력 단(form, application level)에서 ""을 허용하겠니?
     avatar = models.ImageField(upload_to="avatars", blank=True)
@@ -51,6 +66,35 @@ class User(AbstractUser):
     birthdate = models.DateField(
         null=True, blank=True
     )  # 이 녀석은 빈칸이 될 수 없다. date 혹은 null만 가능하다. null은 DB단에서 빈칸을 의미
-    language = models.CharField(choices=LANGUAGE_CHOICES, max_length=2, blank=True)
-    currency = models.CharField(choices=CURRENCY_CHOICES, max_length=3, blank=True)
+    language = models.CharField(
+        choices=LANGUAGE_CHOICES, max_length=2, blank=True, default=LANGUAGE_KOREAN
+    )
+    currency = models.CharField(
+        choices=CURRENCY_CHOICES, max_length=3, blank=True, default=CURRENCY_KRW
+    )
     superhost = models.BooleanField(default=False)
+
+    email_verified = models.BooleanField(default=False)
+    email_secret = models.CharField(max_length=120, default="", blank=True)
+
+    login_method = models.CharField(
+        max_length=50, choices=LOGIN_CHOICES, default=LOGIN_EMAIL
+    )
+
+    def verify_email(self):
+        if self.email_verified is False:
+            secret = uuid.uuid4().hex[:20]
+            self.email_secret = secret
+            html_message = render_to_string(
+                "emails/verify_email.html", {"secret": secret}
+            )
+            send_mail(
+                "Verify Airbnb Account",
+                strip_tags(html_message),
+                settings.EMAIL_FROM,
+                [self.email],
+                fail_silently=False,
+                html_message=html_message,
+            )
+            self.save()
+        return
